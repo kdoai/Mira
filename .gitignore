@@ -1,0 +1,53 @@
+# ── Secrets & Credentials ──
+.env
+.env.*
+*.pem
+*.p12
+*.key
+service-account*.json
+*-credentials.json
+*secret*
+
+# ── Python (Backend) ──
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+*.egg
+.venv/
+venv/
+env/
+
+# ── Firebase Config (contains API keys — GitHub flags these) ──
+**/google-services.json
+**/GoogleService-Info.plist
+**/firebase_options.dart
+
+# ── Flutter / Dart (App) ──
+# (app/.gitignore handles most, but just in case)
+*.dart_tool/
+.packages
+pubspec.lock
+
+# ── Build Artifacts ──
+build/
+*.aab
+*.apk
+*.ipa
+
+# ── IDE ──
+.idea/
+.vscode/
+*.iml
+*.swp
+*.swo
+*~
+
+# ── OS ──
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Claude Code ──
+.claude/

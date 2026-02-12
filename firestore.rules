@@ -1,0 +1,54 @@
+rules_version = '2';
+
+// Mira AI Coaching App — Firestore Security Rules
+// Ref: PLAN.md Section 6, 0.1 Rule 5 (server writes, client read-only except About Me)
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // User document — owner can read their own
+    match /users/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if false; // Server-only via admin SDK
+
+      // User subcollections (profile, subscription, about_me, coach_library)
+      match /{subcollection}/{docId} {
+        allow read: if request.auth != null && request.auth.uid == userId;
+        // About Me — owner can write
+        allow write: if request.auth != null && request.auth.uid == userId
+                     && subcollection == 'about_me';
+      }
+    }
+
+    // Conversations — owner can read their own
+    // Data stored as metadata.userId (nested map field)
+    match /conversations/{convId} {
+      allow read: if request.auth != null
+                  && resource.data.metadata.userId == request.auth.uid;
+      allow write: if false; // Server-only via admin SDK
+    }
+
+    // Messages — owner can read messages in their conversations
+    match /conversations/{convId}/messages/{msgId} {
+      allow read: if request.auth != null
+                  && get(/databases/$(database)/documents/conversations/$(convId)).data.metadata.userId == request.auth.uid;
+      allow write: if false; // Server-only
+    }
+
+    // Custom coaches — readable by any authenticated user (shared coaches)
+    match /coaches/{coachId} {
+      allow read: if request.auth != null;
+      allow write: if false; // Server-only
+    }
+
+    // Voice usage — server-only
+    match /voice_usage/{docId} {
+      allow read, write: if false;
+    }
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
